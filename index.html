@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nota de Venta - Tienda de Juegos de Mesa</title>
+    <style>
+        body {
+            background-color: #f0f8ff;
+            font-family: 'Trebuchet MS', sans-serif;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 15px;
+            background-color: #ffffff;
+            border: 3px solid #4caf50;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        h2 {
+            text-align: center;
+            color: #4caf50;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 2px solid #4caf50;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #81c784;
+            color: #fff;
+        }
+        label {
+            font-weight: bold;
+            color: #4caf50;
+        }
+        input[type="text"], input[type="tel"], input[type="email"], input[type="date"], input[type="number"], select {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 2px solid #81c784;
+        }
+        button {
+            background-color: #81c784;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #4caf50;
+        }
+        img.header-img {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+        .product-img {
+            width: 80px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="portada.jpg" alt="Portada de la Tienda" class="header-img">
+        <h2>Nota de Venta - Tienda de Juegos de Mesa</h2>
+        <form id="ventaForm">
+            <label for="nroVenta">Nro de Venta:</label>
+            <input type="text" id="nroVenta" name="nroVenta" required><br><br>
+            <label for="fecha">Fecha:</label>
+            <input type="date" id="fecha" name="fecha" required><br><br>
+            <label for="cliente">Cliente:</label>
+            <input type="text" id="cliente" name="cliente" required><br><br>
+            <label for="telefono">Tel:</label>
+            <input type="tel" id="telefono" name="telefono" required><br><br>
+            <label for="direccion">Dirección:</label>
+            <input type="text" id="direccion" name="direccion" required><br><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required><br><br>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Cantidad</th>
+                        <th>Descripción</th>
+                        <th>Precio Unitario (Bs)</th>
+                        <th>Subtotal (Bs)</th>
+                        <th>Imagen</th>
+                    </tr>
+                </thead>
+                <tbody id="productos">
+                    <!-- Filas de productos -->
+                    <script>
+                        const productos = [
+                            { nombre: "Catan", imagen: "img2.jpg" },
+                            { nombre: "Ludo", imagen: "img1.jpg" },
+                            { nombre: "Ajedrez", imagen: "img3.jpg" }
+                        ];
+
+                        for (let i = 0; i < 3; i++) {
+                            document.write(`
+                                <tr>
+                                    <td><input type="number" min="1" value="1" class="cantidad" onchange="calcularSubtotal(${i})"></td>
+                                    <td>
+                                        <select class="descripcion" onchange="calcularSubtotal(${i})">
+                                            <option value="">Seleccione...</option>
+                                            ${productos.map((p, index) => `<option value="${index}">${p.nombre}</option>`).join('')}
+                                        </select>
+                                    </td>
+                                    <td><input type="number" min="0" step="0.01" class="precioUnitario" onchange="calcularSubtotal(${i})"></td>
+                                    <td class="subtotal">-</td>
+                                    <td><img src="" alt="Imagen del producto" class="product-img"></td>
+                                </tr>
+                            `);
+                        }
+                    </script>
+                </tbody>
+            </table>
+
+            <label>Sub-Total: Bs <span id="subTotal">0.00</span></label><br>
+            <label>IVA (13%): Bs <span id="iva">0.00</span></label><br>
+            <label>Total: Bs <span id="total">0.00</span></label><br><br>
+
+            <button type="submit">Enviar</button>
+        </form>
+    </div>
+
+    <script>
+        function calcularSubtotal(filaIndex) {
+            const fila = document.querySelectorAll('#productos tr')[filaIndex];
+            const cantidad = fila.querySelector('.cantidad').value;
+            const precioUnitarioInput = fila.querySelector('.precioUnitario').value;
+            const subtotalCell = fila.querySelector('.subtotal');
+            const descripcionSelect = fila.querySelector('.descripcion');
+            const img = fila.querySelector('.product-img');
+
+            if (descripcionSelect.value !== "") {
+                const productoSeleccionado = productos[descripcionSelect.value];
+                img.src = productoSeleccionado.imagen;
+                img.alt = `Imagen de ${productoSeleccionado.nombre}`;
+            } else {
+                img.src = "";
+                img.alt = "Imagen no disponible";
+            }
+
+            if (precioUnitarioInput !== "" && cantidad > 0) {
+                const precioUnitario = parseFloat(precioUnitarioInput);
+                const subtotal = cantidad * precioUnitario;
+                subtotalCell.textContent = `Bs ${subtotal.toFixed(2)}`;
+            } else {
+                subtotalCell.textContent = "-";
+            }
+            actualizarTotales();
+        }
+
+        function actualizarTotales() {
+            let subTotal = 0;
+            document.querySelectorAll('.subtotal').forEach(cell => {
+                if (cell.textContent !== "-") {
+                    subTotal += parseFloat(cell.textContent.replace('Bs ', ''));
+                }
+            });
+
+            const iva = subTotal * 0.13;
+            const total = subTotal + iva;
+
+            document.getElementById('subTotal').textContent = subTotal.toFixed(2);
+            document.getElementById('iva').textContent = iva.toFixed(2);
+            document.getElementById('total').textContent = total.toFixed(2);
+        }
+    </script>
+</body>
+</html>
